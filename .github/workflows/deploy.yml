@@ -1,4 +1,4 @@
-name: Despliegue automático
+name: Deploy con SSH por ngrok
 
 on:
   push:
@@ -8,16 +8,20 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Clonar el repositorio
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync openssh-client
 
       - name: Agregar clave SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-
-      - name: Copiar archivos al servidor
         run: |
-          rsync -avz --delete ./ estebancalcagno@192.168.0.16:/Users/estebancalcagno/sitios/mi-web-cicd
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 12345 4.tcp.ngrok.io >> ~/.ssh/known_hosts
+
+      - name: Deploy con rsync
+        run: |
+          rsync -avz -e "ssh -p 12345 -o StrictHostKeyChecking=yes" ./ estebancalcagno@4.tcp.ngrok.io:/home/estebancalcagno/sitios/mi-web-cicd
