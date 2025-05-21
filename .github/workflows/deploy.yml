@@ -29,4 +29,4 @@ jobs:
       - name: Desplegar con rsync
         run: |
           rsync -avz -e "ssh -p 16939 -o StrictHostKeyChecking=yes" ./ \
-            estebancalcagno@0.tcp.sa.ngrok.io:/home/estebancalcagno/sitios/mi-web-cicd
+            estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
