@@ -30,8 +30,10 @@ jobs:
         run: |
           rsync -avz -e "ssh -p 16939 -o StrictHostKeyChecking=yes" ./ \
             estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
-
       - name: Reiniciar servidor con pm2
         run: |
           ssh -p 16939 -o StrictHostKeyChecking=yes estebancalcagno@0.tcp.sa.ngrok.io \
             'cd ~/sitios/mi-web-cicd && /Users/estebancalcagno/.nvm/versions/node/v19.4.0/bin/pm2 restart mi-web || /Users/estebancalcagno/.nvm/versions/node/v19.4.0/bin/pm2 start server.js --name mi-web'
+
+      
+      
