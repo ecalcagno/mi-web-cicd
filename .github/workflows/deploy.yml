@@ -24,14 +24,14 @@ jobs:
 
       - name: Aceptar clave del host remoto
         run: |
-          ssh-keyscan -p 16939 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
+          ssh-keyscan -p 11650 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
 
       - name: Desplegar con rsync
         run: |
-          rsync -avz -e "ssh -p 16939 -o StrictHostKeyChecking=yes" ./ \
+          rsync -avz -e "ssh -p 11650 -o StrictHostKeyChecking=yes" ./ \
             estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
       - name: Reiniciar servidor con pm2
         run: |
-          ssh -p 16939 -o StrictHostKeyChecking=yes estebancalcagno@0.tcp.sa.ngrok.io \
+          ssh -p 11650 -o StrictHostKeyChecking=yes estebancalcagno@0.tcp.sa.ngrok.io \
           'bash -c "source ~/.bash_profile && cd ~/sitios/mi-web-cicd && pm2 restart mi-web || pm2 start server.js --name mi-web"'
       
