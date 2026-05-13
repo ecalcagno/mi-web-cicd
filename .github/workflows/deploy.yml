@@ -21,6 +21,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H -p 13843 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
 
       - name: Aceptar clave del host remoto
         run: |
@@ -28,7 +29,7 @@ jobs:
 
       - name: Desplegar con rsync
         run: |
-          rsync -avz -e "ssh -p 13843 -o StrictHostKeyChecking=yes" ./ \
+          rsync -avz -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o StrictHostKeyChecking=yes" ./ \
             estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
       - name: Reiniciar servidor con pm2
         run: |
