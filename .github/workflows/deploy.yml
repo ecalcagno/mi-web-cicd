@@ -40,6 +40,7 @@ jobs:
           -o StrictHostKeyChecking=yes \
           estebancalcagno@0.tcp.sa.ngrok.io "echo conexión ok"
 
+
       - name: Desplegar con rsync
         run: |
           rsync -avz \
