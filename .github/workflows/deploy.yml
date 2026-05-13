@@ -29,14 +29,12 @@ jobs:
           ssh-keyscan -p 13843 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
 
       - name: Desplegar con rsync
-        - name: Desplegar con rsync
-          run: |
-            rsync -avz \
-            -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-            ./ estebancalcagno@0.tcp.sa.ngrok.io:~/sitios/mi-web-cicd
+        run: |
+          rsync -avz \
+          -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+          ./ estebancalcagno@0.tcp.sa.ngrok.io:~/sitios/mi-web-cicd
       - name: Reiniciar servidor con pm2
         run: |
           ssh -p 13843 -o StrictHostKeyChecking=yes estebancalcagno@0.tcp.sa.ngrok.io \
           'bash -c "source ~/.bash_profile && cd ~/sitios/mi-web-cicd && pm2 restart mi-web || pm2 start server.js --name mi-web"'
-      
       
