@@ -26,10 +26,26 @@ jobs:
         run: |
           ssh-keyscan -p 13843 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
 
+      - name: Verificar clave SSH
+        run: |
+          ls -la ~/.ssh
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+
+      - name: Probar conexión SSH
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+          -p 13843 \
+          -o IdentitiesOnly=yes \
+          -o StrictHostKeyChecking=yes \
+          estebancalcagno@0.tcp.sa.ngrok.io "echo conexión ok"
+
+
       - name: Desplegar con rsync
         run: |
-          rsync -avz -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o StrictHostKeyChecking=yes" ./ \
-            estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
+          rsync -avz \
+          -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+          ./ estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
+      
       - name: Reiniciar servidor con pm2
         run: |
           ssh -p 13843 -o StrictHostKeyChecking=yes estebancalcagno@0.tcp.sa.ngrok.io \
