@@ -19,17 +19,21 @@ jobs:
       - name: Configurar clave SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+          ssh-keyscan -H -p 13843 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
 
       - name: Aceptar clave del host remoto
         run: |
           ssh-keyscan -p 13843 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
 
       - name: Desplegar con rsync
-        run: |
-          rsync -avz -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o StrictHostKeyChecking=yes" ./ \
-            estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
+        - name: Desplegar con rsync
+          run: |
+            rsync -avz \
+            -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            ./ estebancalcagno@0.tcp.sa.ngrok.io:~/sitios/mi-web-cicd
       - name: Reiniciar servidor con pm2
         run: |
           ssh -p 13843 -o StrictHostKeyChecking=yes estebancalcagno@0.tcp.sa.ngrok.io \
