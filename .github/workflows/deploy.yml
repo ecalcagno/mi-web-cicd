@@ -16,39 +16,37 @@ jobs:
       - name: Instalar dependencias necesarias
         run: sudo apt-get update && sudo apt-get install -y rsync openssh-client
 
-      - name: Configurar clave SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-      - name: Aceptar clave del host remoto
-        run: |
-          ssh-keyscan -p 13843 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
-
-      - name: Verificar clave SSH
+      - name: Configurar SSH
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+          ssh-keyscan -H -p 13843 0.tcp.sa.ngrok.io >> ~/.ssh/known_hosts
 
       - name: Probar conexión SSH
         run: |
           ssh -i ~/.ssh/id_ed25519 \
-          -p 13843 \
-          -o IdentitiesOnly=yes \
-          -o StrictHostKeyChecking=yes \
-          estebancalcagno@0.tcp.sa.ngrok.io "echo conexión ok"
-
+            -p 13843 \
+            -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            estebancalcagno@0.tcp.sa.ngrok.io "echo conexión ok"
 
       - name: Desplegar con rsync
         run: |
           rsync -avz \
-          -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-          ./ estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
-      
+            -e "ssh -i ~/.ssh/id_ed25519 -p 13843 -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes" \
+            ./ estebancalcagno@0.tcp.sa.ngrok.io:/Users/estebancalcagno/sitios/mi-web-cicd
+
       - name: Reiniciar servidor con pm2
         run: |
-          ssh -p 13843 -o StrictHostKeyChecking=yes estebancalcagno@0.tcp.sa.ngrok.io \
-          'bash -c "source ~/.bash_profile && cd ~/sitios/mi-web-cicd && pm2 restart mi-web || pm2 start server.js --name mi-web"'
-      
+          ssh -i ~/.ssh/id_ed25519 \
+            -p 13843 \
+            -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            estebancalcagno@0.tcp.sa.ngrok.io \
+            'bash -c "source ~/.bash_profile && cd ~/sitios/mi-web-cicd && pm2 restart mi-web || pm2 start server.js --name mi-web"'
